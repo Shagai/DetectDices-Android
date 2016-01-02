@@ -50,7 +50,7 @@ public class Tutorial3Activity extends Activity implements CvCameraViewListener2
     private boolean task = false;
     private List<MatOfPoint> squares = null;
     private Mat circles = null;
-    private String letter;
+    private String[] letter;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -141,7 +141,7 @@ public class Tutorial3Activity extends Activity implements CvCameraViewListener2
 
         List<MatOfPoint> squares = det.GetSquares();
         Mat cirlces = det.GetCircles();
-        String letterss = det.GetLetter();
+        String[] letterss = det.GetLetter();
         if (!det.isBusy()) {
             //rgba = frame.clone(); // Desremove //  when you want fluid video
             det = new DetectDices();
@@ -165,7 +165,10 @@ public class Tutorial3Activity extends Activity implements CvCameraViewListener2
                 // draw the found circle
                 Imgproc.circle(rgba, pt, radius, new Scalar(0, 255, 0), 3);
                 Imgproc.circle(rgba, pt, 3, new Scalar(0, 0, 255), 3);
-                Imgproc.putText(rgba, this.letter, new Point(this.squares.get(0).get(0,0)), Core.FONT_HERSHEY_SIMPLEX, 3, new Scalar(255,255,255), 2);
+                for (int i = 0; i < this.squares.size(); i++) {
+                    Imgproc.putText(rgba, this.letter[i], new Point(this.squares.get(i).get(2, 0)),
+                            Core.FONT_HERSHEY_SIMPLEX, 3, new Scalar(255, 255, 255), 2);
+                }
             }
         }
         //Imgproc.drawContours(gray, this.squares, -1, new Scalar(255, 255, 255), -1);

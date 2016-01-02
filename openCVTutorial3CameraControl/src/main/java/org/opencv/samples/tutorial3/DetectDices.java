@@ -27,7 +27,7 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
     private Mat frame = null;
     private List<MatOfPoint> squares = null;
     private Mat circles;
-    private String letter = "-1";
+    private String[] letter = {"-1", "-1", "-1", "-1", "-1"};
 
     public DetectDices() {
 
@@ -198,27 +198,28 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
 
     private void DetectFeatures(List<MatOfPoint> squares, Mat gray, Mat rgba){
         Mat matDest = new Mat();
-        for (MatOfPoint square : squares){
-            //TODO: No consigo extraer el area que yo quiero en color:(
-            CleanBackground(gray, rgba, square, matDest, rgba);
+        for (int i = 0; i  < squares.size(); i++){
+            //TODO: Detectar J y Q. Probar detectando negro, areas de contorno y círculos
+            Mat color = new Mat();
+            CleanBackground(gray, rgba, squares.get(i), matDest, color);
             int pointsContour = -1;
             Features features = new Features();
-            double area = DetectRed(rgba, features);
-            Detect_Circles(matDest, square);
+            double area = DetectRed(color, features);
+            Detect_Circles(matDest, squares.get(i));
             //System.out.println("AREAAAAAAAAAAAA: " + area);
             if (features.getArea() > 0 && this.circles.cols() >= 5){
-                this.letter = "8";
-                break;
+                this.letter[i] = "8";
+                continue;
             }
             if (features.getArea() == 0 && this.circles.cols() >= 5){
-                this.letter = "7";
+                this.letter[i] = "7";
             }
             if (features.getArea() > 10 && this.circles.cols() < 3 &&
                     features.getContourPoints() < 85){
-                this.letter = "As";
+                this.letter[i] = "As";
             }
             if (features.getArea() > 10 && features.getContourPoints() > 85){
-                this.letter = "K";
+                this.letter[i] = "K";
             }
         }
     }
@@ -284,6 +285,6 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
         return area;
     }
 
-    public String GetLetter(){ return this.letter;}
+    public String[] GetLetter(){ return this.letter;}
 }
 
