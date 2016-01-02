@@ -199,28 +199,38 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
     private void DetectFeatures(List<MatOfPoint> squares, Mat gray, Mat rgba){
         Mat matDest = new Mat();
         for (MatOfPoint square : squares){
-            CleanBackground(gray, square, matDest);
-            double area = DetectRed(rgba);
+            //TODO: No consigo extraer el area que yo quiero en color:(
+            CleanBackground(gray, rgba, square, matDest, rgba);
+            int pointsContour = -1;
+            Features features = new Features();
+            double area = DetectRed(rgba, features);
             Detect_Circles(matDest, square);
-            System.out.println("AREAAAAAAAAAAAA: " + area);
-            if (area > 70 && this.circles.cols() >= 5){
+            //System.out.println("AREAAAAAAAAAAAA: " + area);
+            if (features.getArea() > 0 && this.circles.cols() >= 5){
                 this.letter = "8";
+                break;
             }
-            if (area < 70 && this.circles.cols() >= 5){
+            if (features.getArea() == 0 && this.circles.cols() >= 5){
                 this.letter = "7";
             }
-            if (area > 70 && this.circles.cols() == 1){
+            if (features.getArea() > 10 && this.circles.cols() < 3 &&
+                    features.getContourPoints() < 85){
                 this.letter = "As";
+            }
+            if (features.getArea() > 10 && features.getContourPoints() > 85){
+                this.letter = "K";
             }
         }
     }
 
-    private void CleanBackground(Mat img, MatOfPoint square, Mat res){
+    private void CleanBackground(Mat img, Mat img2, MatOfPoint square, Mat res, Mat rgba){
         List<MatOfPoint> squares = new ArrayList<>();
         squares.add(square);
         Mat mask = Mat.zeros(new Size(img.cols(), img.rows()), CvType.CV_8UC1);
         Imgproc.drawContours(mask, squares, -1, new Scalar(255, 255, 255), -1);
         img.copyTo(res, mask);
+        img2.copyTo(rgba, mask);
+        //rgba.copyTo(rgba, mask);
     }
 
     private void Detect_Circles(Mat img, MatOfPoint square){
@@ -241,25 +251,33 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
         return this.circles;
     }
 
-    private double DetectRed(Mat rgba){
+    private double DetectRed(Mat rgba, Features features){
         double area = -1;
+        int contourPoints = -1;
         if (rgba.cols() != 0) {
             Mat imgHSV = new Mat();
             Mat chan = new Mat();
             //Mat erorde_ker = new Mat().ones(1, 1, CvType.CV_32F);
             Imgproc.cvtColor(rgba, imgHSV, Imgproc.COLOR_BGR2HSV);
             //Core.inRange(imgHSV, new Scalar(0, 100, 100), new Scalar(20, 255, 255), rgba);
-            Core.inRange(imgHSV, new Scalar(100, 100, 100), new Scalar(140, 255, 255), chan);
+            Core.inRange(imgHSV, new Scalar(115, 125, 125), new Scalar(140, 255, 255), chan);
             if (imgHSV.cols() != 0) {
                 List<MatOfPoint> contours = new ArrayList<>();
                 Mat hierarchy = new Mat();
                 Imgproc.findContours(chan, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
                 area = 0;
-                for (int i = 0; i < contours.size(); i++) {
-                    area += Imgproc.contourArea(contours.get(contours.size() - 1));
+                contourPoints = 0;
+                for (MatOfPoint contour : contours) {
+                    area += Imgproc.contourArea(contour);
+                    contourPoints += contour.rows();
                 }
-                //System.out.println("AREAAAA: " + area);
+                if (area == 0 && contours.size() > 5){
+                    area = 100;
+                }
+                System.out.println("AREAAAA: " + area);
             }
+            features.setArea(area);
+            features.setcontourPoints(contourPoints);
             //Imgproc.erode(rgba, rgba, erorde_ker);
             //Imgproc.dilate(rgba, rgba, erorde_ker);
         }

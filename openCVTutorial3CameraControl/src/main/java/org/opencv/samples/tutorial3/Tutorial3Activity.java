@@ -199,7 +199,7 @@ public class Tutorial3Activity extends Activity implements CvCameraViewListener2
             //Mat erorde_ker = new Mat().ones(1, 1, CvType.CV_32F);
             Imgproc.cvtColor(rgba, imgHSV, Imgproc.COLOR_BGR2HSV);
             //Core.inRange(imgHSV, new Scalar(0, 100, 100), new Scalar(20, 255, 255), rgba);
-            Core.inRange(imgHSV, new Scalar(100, 100, 100), new Scalar(140, 255, 255), rgba);
+            Core.inRange(imgHSV, new Scalar(115, 125, 125), new Scalar(130, 255, 255), rgba);
             if (imgHSV.cols() != 0) {
                 List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
                 Mat hierarchy = new Mat();
