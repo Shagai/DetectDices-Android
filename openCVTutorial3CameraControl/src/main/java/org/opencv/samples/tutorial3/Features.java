@@ -7,6 +7,7 @@ public class Features {
 
     double area;
     int contourPoints;
+    int numCircles;
 
     public Features(){
 
@@ -17,4 +18,7 @@ public class Features {
 
     double getContourPoints(){return this.contourPoints;}
     void setcontourPoints(int contourPoints){this.contourPoints = contourPoints;}
+
+    int getNumCircles(){return this.numCircles;}
+    void setNumCircles(int numCircles){this.numCircles = numCircles;}
 }

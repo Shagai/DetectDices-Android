@@ -140,20 +140,20 @@ public class Tutorial3Activity extends Activity implements CvCameraViewListener2
         }
 
         List<MatOfPoint> squares = det.GetSquares();
-        Mat cirlces = det.GetCircles();
+        //Mat cirlces = det.GetCircles();
         String[] letterss = det.GetLetter();
         if (!det.isBusy()) {
             //rgba = frame.clone(); // Desremove //  when you want fluid video
             det = new DetectDices();
             this.task = false;
             this.squares = squares;     // Remove when you want fluid video
-            this.circles = cirlces;
+            //this.circles = cirlces;
             this.letter = letterss;
         }
 
         Imgproc.drawContours(rgba, this.squares, -1, new Scalar(0, 255, 0), 3);
-        if (this.circles != null) {
-            for (int x = 0; x < this.circles.cols(); x++) {
+        if (this.squares != null) {
+            /*for (int x = 0; x < this.circles.cols(); x++) {
                 double vCircle[] = circles.get(0, x);
 
                 if (vCircle == null)
@@ -165,10 +165,11 @@ public class Tutorial3Activity extends Activity implements CvCameraViewListener2
                 // draw the found circle
                 Imgproc.circle(rgba, pt, radius, new Scalar(0, 255, 0), 3);
                 Imgproc.circle(rgba, pt, 3, new Scalar(0, 0, 255), 3);
-                for (int i = 0; i < this.squares.size(); i++) {
-                    Imgproc.putText(rgba, this.letter[i], new Point(this.squares.get(i).get(2, 0)),
-                            Core.FONT_HERSHEY_SIMPLEX, 3, new Scalar(255, 255, 255), 2);
-                }
+            }*/
+
+            for (int i = 0; i < this.squares.size(); i++) {
+                Imgproc.putText(rgba, this.letter[i], new Point(this.squares.get(i).get(2, 0)),
+                        Core.FONT_HERSHEY_SIMPLEX, 3, new Scalar(255, 255, 255), 2);
             }
         }
         //Imgproc.drawContours(gray, this.squares, -1, new Scalar(255, 255, 255), -1);

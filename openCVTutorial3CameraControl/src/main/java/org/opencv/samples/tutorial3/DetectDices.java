@@ -26,7 +26,7 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
     private boolean busy = true;
     private Mat frame = null;
     private List<MatOfPoint> squares = null;
-    private Mat circles;
+    private Mat circles = null;
     private String[] letter = {"-1", "-1", "-1", "-1", "-1"};
 
     public DetectDices() {
@@ -197,29 +197,31 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
     }
 
     private void DetectFeatures(List<MatOfPoint> squares, Mat gray, Mat rgba){
-        Mat matDest = new Mat();
         for (int i = 0; i  < squares.size(); i++){
             //TODO: Detectar J y Q. Probar detectando negro, areas de contorno y círculos
             Mat color = new Mat();
+            Mat matDest = new Mat();
+            Mat circles = new Mat();
             CleanBackground(gray, rgba, squares.get(i), matDest, color);
-            int pointsContour = -1;
             Features features = new Features();
-            double area = DetectRed(color, features);
-            Detect_Circles(matDest, squares.get(i));
-            //System.out.println("AREAAAAAAAAAAAA: " + area);
-            if (features.getArea() > 0 && this.circles.cols() >= 5){
+            DetectRed(color, features);
+            Detect_Circles(matDest, squares.get(i), features);
+            if (features.getArea() > 0 && features.getNumCircles() >= 5){
                 this.letter[i] = "8";
                 continue;
             }
-            if (features.getArea() == 0 && this.circles.cols() >= 5){
+            if (features.getArea() == 0 && features.getNumCircles() >= 5){
                 this.letter[i] = "7";
+                continue;
             }
-            if (features.getArea() > 10 && this.circles.cols() < 3 &&
+            if (features.getArea() > 10 && features.getNumCircles() < 3 &&
                     features.getContourPoints() < 85){
                 this.letter[i] = "As";
+                continue;
             }
             if (features.getArea() > 10 && features.getContourPoints() > 85){
                 this.letter[i] = "K";
+                continue;
             }
         }
     }
@@ -231,20 +233,19 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
         Imgproc.drawContours(mask, squares, -1, new Scalar(255, 255, 255), -1);
         img.copyTo(res, mask);
         img2.copyTo(rgba, mask);
-        //rgba.copyTo(rgba, mask);
     }
 
-    private void Detect_Circles(Mat img, MatOfPoint square){
-        this.circles = new Mat();
+    private void Detect_Circles(Mat img, MatOfPoint square, Features features){
         double dp = 0.5;
         double minDist = 15;
         double param1 = 80.0;
         double param2 = 10.0;
-        int minRadius = 0;
+        int minRadius = 1;
         int maxRadius = 10;
-        // TODO: Hacer un loop y quedarme con un filtrado de los no cercanos
-        Imgproc.HoughCircles(img, this.circles, Imgproc.CV_HOUGH_GRADIENT, dp, minDist, param1, param2,
+        Mat circles = new Mat();
+        Imgproc.HoughCircles(img, circles, Imgproc.CV_HOUGH_GRADIENT, dp, minDist, param1, param2,
                 minRadius, maxRadius);
+        features.setNumCircles(circles.cols());
     }
 
     public Mat GetCircles()
@@ -275,7 +276,7 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
                 if (area == 0 && contours.size() > 5){
                     area = 100;
                 }
-                System.out.println("AREAAAA: " + area);
+                //System.out.println("AREAAAA: " + area);
             }
             features.setArea(area);
             features.setcontourPoints(contourPoints);
