@@ -214,15 +214,36 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
                 this.letter[i] = "7";
                 continue;
             }
-            if (features.getArea() > 10 && features.getNumCircles() < 3 &&
-                    features.getContourPoints() < 85){
+            if (features.getArea() > 250 && features.getNumCircles() < 3 &&
+                    features.getContourPoints() < 100){
                 this.letter[i] = "As";
                 continue;
             }
-            if (features.getArea() > 10 && features.getContourPoints() > 85){
+            if (features.getArea() < 300 && features.getContourPoints() > 85){
                 this.letter[i] = "K";
                 continue;
             }
+            if (features.getArea() > 10){
+                this.letter[i] = "K";
+                continue;
+            }
+            DetectBlack(matDest, features);
+            if (features.getArea() > 1000){
+                this.letter[i] = "Q";
+                continue;
+            }
+            if (features.getArea() < 500){
+                this.letter[i] = "J";
+                continue;
+            }
+            if (features.getNumCircles() > 1){
+                this.letter[i] = "Q";
+                continue;
+            }
+            else{
+                this.letter[i] = "J";
+            }
+
         }
     }
 
@@ -259,6 +280,7 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
         if (rgba.cols() != 0) {
             Mat imgHSV = new Mat();
             Mat chan = new Mat();
+            Mat res = new Mat();
             //Mat erorde_ker = new Mat().ones(1, 1, CvType.CV_32F);
             Imgproc.cvtColor(rgba, imgHSV, Imgproc.COLOR_BGR2HSV);
             //Core.inRange(imgHSV, new Scalar(0, 100, 100), new Scalar(20, 255, 255), rgba);
@@ -266,12 +288,16 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
             if (imgHSV.cols() != 0) {
                 List<MatOfPoint> contours = new ArrayList<>();
                 Mat hierarchy = new Mat();
-                Imgproc.findContours(chan, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+                Imgproc.threshold(chan, res, 127, 255, Imgproc.THRESH_BINARY);
+                Imgproc.findContours(res, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
                 area = 0;
                 contourPoints = 0;
                 for (MatOfPoint contour : contours) {
-                    area += Imgproc.contourArea(contour);
-                    contourPoints += contour.rows();
+                    double ar = Imgproc.contourArea(contour);
+                    if (ar > 0) {
+                        area += ar;
+                        contourPoints += contour.rows();
+                    }
                 }
                 if (area == 0 && contours.size() > 5){
                     area = 100;
@@ -282,6 +308,33 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
             features.setcontourPoints(contourPoints);
             //Imgproc.erode(rgba, rgba, erorde_ker);
             //Imgproc.dilate(rgba, rgba, erorde_ker);
+        }
+        return area;
+    }
+
+    private double DetectBlack(Mat img, Features features){
+        Mat res = new Mat();
+        double area = -1;
+        int contourPoints = -1;
+        if (img.cols() != 0) {
+            List<MatOfPoint> contours = new ArrayList<>();
+            Mat hierarchy = new Mat();
+            Imgproc.threshold(img, res, 127, 255, Imgproc.THRESH_BINARY);
+            Imgproc.findContours(res, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+            area = 0;
+            contourPoints = 0;
+            for (MatOfPoint contour : contours) {
+                double ar = Imgproc.contourArea(contour);
+                if (ar < 3000 && ar > 0) {
+                    area += ar;
+                    contourPoints += contour.rows();
+                }
+            }
+            if (area == 0 && contours.size() > 5){
+                area = 100;
+            }
+            features.setArea(area);
+            features.setcontourPoints(contourPoints);
         }
         return area;
     }
