@@ -227,11 +227,15 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
                 continue;
             }
             DetectBlack(matDest, features);
-            if (features.getArea() > 450){ //1000
+            if (features.getArea() > 500){ //1000
                 this.letter[i] = "Q";
                 continue;
             }
-            if (features.getArea() < 350){
+            if (features.getArea() < 400){
+                this.letter[i] = "J";
+                continue;
+            }
+            if (features.getContourPoints() < 110){
                 this.letter[i] = "J";
                 continue;
             }
@@ -260,7 +264,7 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
         double minDist = 15;
         double param1 = 80.0;
         double param2 = 10.0;
-        int minRadius = 1;
+        int minRadius = 2;
         int maxRadius = 10;
         Mat circles = new Mat();
         Imgproc.HoughCircles(img, circles, Imgproc.CV_HOUGH_GRADIENT, dp, minDist, param1, param2,
