@@ -198,7 +198,6 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
 
     private void DetectFeatures(List<MatOfPoint> squares, Mat gray, Mat rgba){
         for (int i = 0; i  < squares.size(); i++){
-            //TODO: Detectar J y Q. Probar detectando negro, areas de contorno y círculos
             Mat color = new Mat();
             Mat matDest = new Mat();
             Mat circles = new Mat();
@@ -228,11 +227,11 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
                 continue;
             }
             DetectBlack(matDest, features);
-            if (features.getArea() > 1000){
+            if (features.getArea() > 450){ //1000
                 this.letter[i] = "Q";
                 continue;
             }
-            if (features.getArea() < 500){
+            if (features.getArea() < 350){
                 this.letter[i] = "J";
                 continue;
             }
@@ -302,12 +301,9 @@ public class DetectDices extends AsyncTask<Mat, Void, Void> {
                 if (area == 0 && contours.size() > 5){
                     area = 100;
                 }
-                //System.out.println("AREAAAA: " + area);
             }
             features.setArea(area);
             features.setcontourPoints(contourPoints);
-            //Imgproc.erode(rgba, rgba, erorde_ker);
-            //Imgproc.dilate(rgba, rgba, erorde_ker);
         }
         return area;
     }
