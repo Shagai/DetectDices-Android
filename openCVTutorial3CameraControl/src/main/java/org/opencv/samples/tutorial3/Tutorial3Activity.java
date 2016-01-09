@@ -151,7 +151,7 @@ public class Tutorial3Activity extends Activity implements CvCameraViewListener2
             this.letter = letterss;
         }
 
-        Imgproc.drawContours(rgba, this.squares, -1, new Scalar(0, 255, 0), 3);
+        Imgproc.drawContours(rgba, this.squares, -1, new Scalar(0, 0, 255), 2);
         if (this.squares != null) {
             /*for (int x = 0; x < this.circles.cols(); x++) {
                 double vCircle[] = circles.get(0, x);
@@ -169,7 +169,7 @@ public class Tutorial3Activity extends Activity implements CvCameraViewListener2
 
             for (int i = 0; i < this.squares.size(); i++) {
                 Imgproc.putText(rgba, this.letter[i], new Point(this.squares.get(i).get(2, 0)),
-                        Core.FONT_HERSHEY_SIMPLEX, 3, new Scalar(0, 0, 255), 2);
+                        Core.FONT_HERSHEY_SIMPLEX, 3, new Scalar(0, 255, 0), 3);
             }
         }
         //Imgproc.drawContours(gray, this.squares, -1, new Scalar(255, 255, 255), -1);
